@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>ASM2</title>
+</head>
+
+<body>
+    <div class="container">
+        <header class="bg-header" style="height:90px">
+            <h2>FusionRental</h2>
+        </header>
+
+        <nav class="bg-nav" style="height:60px">
+            <div class="navbar">
+
+            </div>
+        </nav>
+
+        <main class="bg-main">
+
+        </main>
+
+        <footer class="bg-footer">
+
+        </footer>
+
+    </div>
+</body>
+
+</html>
+<script>
+
+    //menu
+    let str_items =
+        `
+        <a href="/" class="home">Trang chu</a>
+`;
+    fetch(` http://localhost:3000/list_nhasx`)
+        .then(res => res.json())
+        .then(data => {
+            data.forEach(nsx => str_items += showMenuItem(nsx))
+            document.querySelector(".navbar").innerHTML = str_items
+        })
+    const showMenuItem = (nsx) => {
+        return `<a href="sptheonhasx.html?id=${nsx.id}" class="link">${nsx.ten}</a>
+    `
+    }
+</script>
+<script>
+    //hien chi tiet san pham
+    const params = new URLSearchParams(location.search);
+    let id = params.get("id");
+    let str = ``;
+    fetch(` http://localhost:3000/sp/${id}`)
+        .then(res => res.json())
+        .then(sp => {
+            let str = chitietsp(sp);
+            document.querySelector(".bg-main").innerHTML = 
+            `<div class="chitietsp">
+                <h4>Chi tiết sản phẩm</h4>
+                    <div class="product">
+                        ${str}
+                    </div> `
+        })
+    const chitietsp = (sp) => {
+        return`
+        <div class="left">
+            <img src="${sp.hinh}" alt="">
+        </div>
+
+        <div class="right">
+        <h3>${sp.ten}</h3>
+        <div class="gia2">${Number(sp.gia).toLocaleString('vi')} VND</div>
+        <div class="gia_km2">${Number(sp.gia_km).toLocaleString('vi')} VND</div>
+        <div class="tt-product">
+            <p>Màu sắc: ${sp.mau_sac}</p>
+            <p>Cân nặng: ${sp.can_nang}</p>
+            <p>RAM: ${sp.ram}</p>
+            <p>CPU: ${sp.cpu}</p>
+            <p>Đĩa: ${sp.dia}</p>
+            <p>Màn hình: ${sp.man_hinh}</p>
+            <p>Thông tin pin: ${sp.thong_tin_pin}</p>
+            <p>Công nghệ màn hình: ${sp.cong_nghe_man_hinh}</p>
+            <p>Cổng kết nối: ${sp.cong_ket_noi}</p>
+        </div>
+        <button class="btn btn-primary" type="button">Thêm Vào giỏ hàng</button>
+        </div>
+        `
+    }
+</script>

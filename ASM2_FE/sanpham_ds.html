@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="admin.css">
+    <title>ASM2</title>
+</head>
+
+<body>
+    <div class="container">
+        <header class="bg-header" style="height:90px">
+            <h2>FusionRental</h2>
+        </header>
+
+        <nav class="bg-nav" style="height:60px">
+            <div class="navbar">
+                <a href="sanpham_ds.html" class="link">Danh sách</a>
+            </div>
+        </nav>
+
+        <main class="bg-main">
+
+        </main>
+
+        <footer class="bg-footer">
+
+        </footer>
+
+    </div>
+</body>
+</html>
+<script>
+    //danh sach san pham
+let laydanhsachsp = new Promise((hienlistsp, loi) => {
+    fetch(` http://localhost:3000/admin/sp`).then(res => res.json())
+    .then(listsp => {hienlistsp(listsp)})
+    .catch(err =>loi(err))
+});
+laydanhsachsp.then(
+    function(listsp){
+        let str=`
+        <div class="listsp">
+            <b>Hình</b> 
+            <b> ID, Tên, Ngày</b> 
+            <b>Giá & Trạng thái</b> 
+            <b>Thông Tinh</b> 
+            <b>Thao tác</b> 
+        </div>`;
+        listsp.forEach(sp => str += mot_san_pham(sp));
+        return str;
+        
+    },
+    function(err){
+        alert(`Loi ${err}`)}
+).then(function(html){
+    document.querySelector('main').innerHTML =`
+    <div id="listadminsp" class="listadminsp">
+        <h2>Quản lý sản phẩm <a href="sanpham_them.html" class="btn-add">Thêm</a></h2>
+        <div id='data'>${html}</div>
+    </div> `
+})
+</script>
+<script>
+    // mot san pham
+    const mot_san_pham = (sp) => {
+        return `
+        <div class="sp">
+            <span><img class="hinhsp" src="${sp.hinh}" alt=""></span>
+            <span>
+                ID: ${sp.id} <br>
+                Tên: ${sp.ten} <br>
+                Ngày: ${sp.ngay}
+            </span>
+            <span>
+                Giá: ${Number(sp.gia).toLocaleString('vi')} VND <br>
+                Giá KM: ${Number(sp.gia_km).toLocaleString('vi')} VND <br>
+                Ẩn hiện: ${sp.an_hien == false ? 'Đang ẩn': 'Đang hiện'} <br>
+                Hot: ${sp.hot == false ? 'Bình thường': 'Nổi bật'} 
+            </span>
+            <span>
+                Màu sắc: ${sp.mau_sac} <br>
+                Cân nặng: ${sp.can_nang} <br>
+                Lượt xem: ${sp.xem} <br>
+                Tính chất: ${sp.tinh_chat} 
+            </span>
+            <span>
+                <a class="btn btn-success" href='sanpham_sua.html?id=${sp.id}'>Sửa</a>
+                <button class="btn btn-danger" onclick="xoa_sp(${sp.id})">Xóa</button>
+            </span>
+        </div>`
+    }
+</script>
+<script>
+    //xoa san pham
+    const xoa_sp = (id) => {
+        let hoi = confirm('Xóa sản phẩm nay ?');
+        if(hoi==false ) return;
+        let opt = {
+            method: 'DELETE',
+        }
+        fetch(` http://localhost:3000/admin/sp/${id}`, opt)
+        .then(res => res.json())
+        .then(data => {
+            document.location='sanpham_ds.html'
+        })
+    }
+</script>

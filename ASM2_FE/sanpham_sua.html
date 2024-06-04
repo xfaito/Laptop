@@ -1,0 +1,163 @@
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="admin.css">
+    <title>ASM2</title>
+</head>
+
+<body>
+    <div class="container">
+        <header class="bg-header" style="height:90px">
+            <h2>FusionRental</h2>
+        </header>
+
+        <nav class="bg-nav" style="height:60px">
+            <div class="navbar">
+                <a href="sanpham_ds.html" class="link">Danh sách</a>
+            </div>
+        </nav>
+
+        <main class="bg-main">
+
+        </main>
+
+        <footer class="bg-footer">
+
+        </footer>
+
+    </div>
+</body>
+
+</html>
+<script>
+    const hien_form_sp = async () => {
+        const params = new URLSearchParams(location.search);
+        let id = params.get("id");
+        let url = `http://localhost:3000/admin/sp/${id}`;
+        let sp = await fetch(url).then(res => res.json()).then(data => data); 
+
+        // MAU SAC
+        const mau_sac_arr = ['Đen', 'Bạc', 'Xám', 'Xanh', 'Đỏ'];
+        let mau_sac_option = ``;
+        mau_sac_arr.forEach(ms => mau_sac_option += `
+        <option value='${ms}' ${sp.mau_sac == ms ? 'selected' : ''}>${ms}</option>`);
+
+        // TINH CHAT
+        const tinh_chat_arr = ['Bình thường', 'Giá rẻ', 'Giảm sốc', 'Cao cấp'];
+        let tinh_chat_option = ``;
+        tinh_chat_arr.forEach((tc, index) => tinh_chat_option += `
+        <option value='${index+1}' ${sp.tinh_chat == index+1 ? 'selected' : ''}>${tc}</option>`);
+
+        // NHA SAN XUAT
+        let nhasx_arr = await fetch(`http://localhost:3000/list_nhasx`)
+        .then(res => res.json()).then(data => data);
+        let nhasx_option = ``;
+        nhasx_arr.forEach(nhasx => nhasx_option += `
+        <option value='${nhasx.id}' ${sp.id_nhasx == nhasx.id ? 'selected' : ''}>${nhasx.ten}</option>`);
+
+        // FORM
+        let form_str = `
+        <form class="product-form">
+            <input type="hidden" id="id" value="${sp.id}">
+            <div class="form-group">
+                <select id="id_nhasx" name="id_nhasx" class="form-control">
+                    ${nhasx_option}
+                </select>
+            </div>
+            <div class="form-group">
+                <input type="text" id="ten" value="${sp.ten}" name="ten" placeholder="Tên sản phẩm" class="form-control">
+            </div>
+            <div class="form-group">
+                <input type="text" id="hinh" value="${sp.hinh}" name="hinh" placeholder="URL hình ảnh" class="form-control">
+            </div>
+            <div class="form-group">
+                <input type="number" id="gia" value="${sp.gia}" name="gia" placeholder="Giá" class="form-control">
+            </div>
+            <div class="form-group">
+                <input type="number" id="gia_km" value="${sp.gia_km}" name="gia_km" placeholder="Giá khuyến mãi" class="form-control">
+            </div>
+            <div class="form-group">
+                <input type="date" id="ngay" value="${sp.ngay}" name="ngay" placeholder="Ngày" class="form-control">
+            </div>
+            <div class="form-group">
+                <input type="text" id="can_nang" value="${sp.can_nang}" name="can_nang" placeholder="Cân nặng" class="form-control">
+            </div>
+            <div class="form-group">
+                <select id="tinh_chat" name="tinh_chat" class="form-control">
+                    ${tinh_chat_option}
+                </select>
+            </div>
+            <div class="form-group">
+                <select id="mau_sac" name="mau_sac" class="form-control">
+                    ${mau_sac_option}
+                </select>
+            </div>
+            <div class="form-group">
+                <div class="form-radio">
+                    <label>Hot:</label>
+                    <label for="hot_yes">Có</label>
+                    <input type="radio" id="hot_yes" name="hot" value="1" ${sp.hot == 1 ? 'checked' : ''}>
+                    <label for="hot_no">Không</label>
+                    <input type="radio" id="hot_no" name="hot" value="0" ${sp.hot == 0 ? 'checked' : ''}>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="form-radio">
+                    <label>Ẩn hiện:</label>
+                    <label for="an_hien_yes">Hiện</label>
+                    <input type="radio" id="an_hien_yes" name="an_hien" value="1" ${sp.an_hien == 1 ? 'checked' : ''}>
+                    <label for="an_hien_no">Ẩn</label>
+                    <input type="radio" id="an_hien_no" name="an_hien" value="0" ${sp.an_hien == 0 ? 'checked' : ''}>
+                </div>
+            </div>
+            <div class="form-group">
+                <button type="button" class="btn btn-primary" onclick="guisp()">Cập nhật</button>
+            </div>
+        </form>`;
+        document.querySelector('.bg-main').innerHTML = `<div class="formsp">
+            <h3>Cập nhật sản phẩm</h3>
+            <b id="thongbao"></b>
+            ${form_str}
+        </div>`
+    }
+    hien_form_sp();
+</script>
+<script>
+    // them san pham
+    const guisp = () => {
+        let guilenserver = new Promise((thongbao, loi) => {
+            let id = document.querySelector('#id').value;
+            let data = {
+                id: id,
+                id_nhasx: document.querySelector('#id_nhasx').value,
+                ten: document.querySelector('#ten').value,
+                hinh: document.querySelector('#hinh').value,
+                gia: document.querySelector('#gia').value,
+                gia_km: document.querySelector('#gia_km').value,
+                ngay: document.querySelector('#ngay').value,
+                can_nang: document.querySelector('#can_nang').value,
+                tinh_chat: document.querySelector('#tinh_chat').value,
+                mau_sac: document.querySelector('#mau_sac').value,
+                hot: document.querySelector('input[name="hot"]:checked').value,
+                an_hien: document.querySelector('input[name="an_hien"]:checked').value,
+            };
+            let opt = {
+                method: 'PUT',
+                body: JSON.stringify(data),
+                headers: {'Content-Type': 'application/json'}
+            };
+            fetch(`http://localhost:3000/admin/sp/${id}`, opt)
+            .then(res => res.json())
+            .then(sp => thongbao(sp))
+            .catch(err => loi(err));
+        });
+
+        guilenserver.then(
+            thongbao = sp => {
+                alert("Sửa sản phẩm thành công");
+                document.location = 'sanpham_ds.html';
+            },
+            loi = err => alert("Không cập nhật được sản phẩm")
+        );
+    }
+</script>

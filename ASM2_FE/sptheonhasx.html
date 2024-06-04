@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>ASM2</title>
+</head>
+
+<body>
+    <div class="container">
+        <header class="bg-header" style="height:90px">
+            <h2>FusionRental</h2>
+        </header>
+
+        <nav class="bg-nav" style="height:60px">
+            <div class="navbar">
+
+            </div>
+        </nav>
+
+        <main class="bg-main">
+
+        </main>
+
+        <footer class="bg-footer">
+
+        </footer>
+
+    </div>
+</body>
+
+</html>
+<script>
+
+    //menu
+    let str_items =
+        `
+        <a href="/" class="home">Trang chu</a>
+`;
+    fetch(` http://localhost:3000/list_nhasx`)
+        .then(res => res.json())
+        .then(data => {
+            data.forEach(nsx => str_items += showMenuItem(nsx))
+            document.querySelector(".navbar").innerHTML = str_items
+        })
+    const showMenuItem = (nsx) => {
+        return `<a href="sptheonhasx.html?id=${nsx.id}" class="link">${nsx.ten}</a>
+    `
+    }
+</script>
+<script>
+    //san pham theo nha san xuat
+    const params = new URLSearchParams(location.search);
+    let id = params.get("id");
+    fetch(` http://localhost:3000/sp_nhasx/${id}`)
+    .then(res => res.json())
+    .then(data => {
+        let str = ``;
+        data.forEach(sp => str += showsp(sp));
+        document.querySelector(".bg-main").innerHTML =
+                `<div class="listsp">
+                    <h1 class="text-center">Sản phẩm theo nhà sản xuất</h1>
+                        <div class="data">
+                            ${str}
+                        </div>
+                </div>`             
+    })
+    const showsp = (sp) => {
+        return `
+        <div class="sp">
+            <a href="sp.html?id=${sp.id}">
+                <h3>${sp.ten}</h3>
+                <img class="hinhsp" src="${sp.hinh}" alt="">
+            </a>
+                <div class="gia">${Number(sp.gia).toLocaleString('vi')} VND</div>
+                <div class="gia_km">${Number(sp.gia_km).toLocaleString('vi')} VND</div>
+        </div>
+    `
+    }
+</script>
